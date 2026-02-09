@@ -8,7 +8,7 @@
 body{
     background:#0f172a;
     color:white;
-    font-family:Arial;
+    font-family:Arial, sans-serif;
     text-align:center;
     padding:40px;
 }
@@ -29,11 +29,28 @@ button{
     cursor:pointer;
 }
 
-#output{
+#output, #last5Games, #nextGame{
     margin-top:30px;
     background:#1e293b;
     padding:20px;
     border-radius:12px;
+    text-align:left;
+}
+
+table{
+    width:100%;
+    border-collapse: collapse;
+    color:white;
+}
+
+th, td{
+    padding:8px;
+    border:1px solid #333;
+    text-align:center;
+}
+
+h1, h3{
+    text-align:center;
 }
 </style>
 </head>
@@ -42,34 +59,52 @@ button{
 
 <h1>⚽ Football Match Analyzer</h1>
 
-<p>Analisa probabilidades do próximo jogo</p>
+<p>Analisa os últimos 5 jogos e prevê o próximo</p>
 
 <input id="team" placeholder="Ex: Arsenal">
 <button onclick="analisar()">Analisar</button>
 
-<div id="output">Aguardando análise...</div>
+<div id="last5Games">Aguardando análise...</div>
+<div id="nextGame"></div>
 
 <script>
 async function analisar(){
-
-    document.getElementById("output").innerHTML = "A analisar equipa...";
-
     let team = document.getElementById("team").value;
 
-    // URL da API alterada para o teu projeto no Vercel
+    // Mensagem de loading
+    document.getElementById("last5Games").innerHTML = "A analisar últimos 5 jogos...";
+    document.getElementById("nextGame").innerHTML = "A analisar próximo jogo...";
+
+    // Substituir pela tua URL de API
     let res = await fetch("https://football-analyzer-git-main-moises-paulinos-projects.vercel.app/analyze?team=" + team);
     let data = await res.json();
 
-    document.getElementById("output").innerHTML = `
-        <h3>${data.team}</h3>
-        Probabilidade Over 2.5: ${data.over25}%<br>
-        BTTS: ${data.btts}%<br>
-        Cartões: ${data.cards}%<br>
-        Cantos: ${data.corners}%
+    // Últimos 5 jogos
+    let html5 = "<h3>Últimos 5 Jogos</h3><table><tr><th>Adversário</th><th>Golos</th><th>Cantos</th><th>Cartões</th><th>Impedimentos</th></tr>";
+    data.last5.forEach(jogo => {
+        html5 += `<tr>
+                    <td>${jogo.adversario}</td>
+                    <td>${jogo.gols}</td>
+                    <td>${jogo.cantos}</td>
+                    <td>${jogo.cartoes}</td>
+                    <td>${jogo.impedimentos}</td>
+                  </tr>`;
+    });
+    html5 += "</table>";
+    document.getElementById("last5Games").innerHTML = html5;
+
+    // Próximo jogo / previsão
+    let next = data.nextGamePrediction;
+    document.getElementById("nextGame").innerHTML = `
+        <h3>Próximo Jogo: ${next.adversario}</h3>
+        Golos esperados: ${next.probGols}<br>
+        BTTS: ${next.btTS}%<br>
+        Cartões: ${next.cartoes}<br>
+        Cantos: ${next.cantos}<br>
+        Impedimentos: ${next.impedimentos}
     `;
 }
 </script>
 
 </body>
 </html>
-
