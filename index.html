@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <title>Football AI Analyzer</title>
 
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 body{
     background:#0f172a;
@@ -18,6 +21,7 @@ input{
     width:260px;
     border-radius:8px;
     border:none;
+    margin-right:10px;
 }
 
 button{
@@ -29,12 +33,13 @@ button{
     cursor:pointer;
 }
 
-#output, #last5Games, #nextGame{
+#last5Games, #nextGame, #chartContainer{
     margin-top:30px;
     background:#1e293b;
     padding:20px;
     border-radius:12px;
     text-align:left;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
 table{
@@ -49,8 +54,38 @@ th, td{
     text-align:center;
 }
 
+th{
+    background:#111827;
+}
+
 h1, h3{
     text-align:center;
+    margin-bottom:15px;
+}
+
+.progress-container{
+    background:#111827;
+    border-radius:8px;
+    margin:5px 0 15px 0;
+    height:20px;
+    width:100%;
+}
+
+.progress-bar{
+    height:100%;
+    border-radius:8px;
+    text-align:center;
+    line-height:20px;
+    color:white;
+    font-weight:bold;
+    transition: width 1s ease;
+}
+
+canvas{
+    margin-top:20px;
+    background:#111827;
+    border-radius:12px;
+    padding:10px;
 }
 </style>
 </head>
@@ -65,9 +100,14 @@ h1, h3{
 <button onclick="analisar()">Analisar</button>
 
 <div id="last5Games">Aguardando análise...</div>
+<div id="chartContainer">
+    <canvas id="last5Chart"></canvas>
+</div>
 <div id="nextGame"></div>
 
 <script>
+let chart; // Variável global para o gráfico
+
 async function analisar(){
     let team = document.getElementById("team").value;
 
@@ -79,32 +119,22 @@ async function analisar(){
     let res = await fetch("https://football-analyzer-git-main-moises-paulinos-projects.vercel.app/analyze?team=" + team);
     let data = await res.json();
 
-    // Últimos 5 jogos
-    let html5 = "<h3>Últimos 5 Jogos</h3><table><tr><th>Adversário</th><th>Golos</th><th>Cantos</th><th>Cartões</th><th>Impedimentos</th></tr>";
+    // Últimos 5 jogos - tabela
+    let html5 = "<h3>Últimos 5 Jogos</h3><table><tr><th>Adversário</th><th>⚽ Golos</th><th>🥅 Cantos</th><th>🟨 Cartões</th><th>🚫 Impedimentos</th></tr>";
     data.last5.forEach(jogo => {
         html5 += `<tr>
                     <td>${jogo.adversario}</td>
-                    <td>${jogo.gols}</td>
-                    <td>${jogo.cantos}</td>
-                    <td>${jogo.cartoes}</td>
-                    <td>${jogo.impedimentos}</td>
+                    <td style="color:#22c55e;">${jogo.gols}</td>
+                    <td style="color:#3b82f6;">${jogo.cantos}</td>
+                    <td style="color:#f59e0b;">${jogo.cartoes}</td>
+                    <td style="color:#ef4444;">${jogo.impedimentos}</td>
                   </tr>`;
     });
     html5 += "</table>";
     document.getElementById("last5Games").innerHTML = html5;
 
-    // Próximo jogo / previsão
-    let next = data.nextGamePrediction;
-    document.getElementById("nextGame").innerHTML = `
-        <h3>Próximo Jogo: ${next.adversario}</h3>
-        Golos esperados: ${next.probGols}<br>
-        BTTS: ${next.btTS}%<br>
-        Cartões: ${next.cartoes}<br>
-        Cantos: ${next.cantos}<br>
-        Impedimentos: ${next.impedimentos}
-    `;
-}
-</script>
+    // Gráfico dos últimos 5 jogos
+    const labels = data.last5.map(j => j.adversario);
+    const gols = data.last5.map(j => j.gols);
+    const cantos = data.last5.map(j => j.cantos);
 
-</body>
-</html>
