@@ -1,1 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Football AI Analyzer</title>
+
+<style>
+body{
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+    padding:40px;
+}
+
+input{
+    padding:12px;
+    width:260px;
+    border-radius:8px;
+    border:none;
+}
+
+button{
+    padding:12px 20px;
+    background:#22c55e;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+#output{
+    margin-top:30px;
+    background:#1e293b;
+    padding:20px;
+    border-radius:12px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>⚽ Football Match Analyzer</h1>
+
+<p>Analisa probabilidades do próximo jogo</p>
+
+<input id="team" placeholder="Ex: Arsenal">
+<button onclick="analisar()">Analisar</button>
+
+<div id="output">Aguardando análise...</div>
+
+<script>
+async function analisar(){
+
+    document.getElementById("output").innerHTML = "A analisar equipa...";
+
+    let team = document.getElementById("team").value;
+
+    // URL da API alterada para o teu projeto no Vercel
+    let res = await fetch("https://football-analyzer-git-main-moises-paulinos-projects.vercel.app/analyze?team=" + team);
+    let data = await res.json();
+
+    document.getElementById("output").innerHTML = `
+        <h3>${data.team}</h3>
+        Probabilidade Over 2.5: ${data.over25}%<br>
+        BTTS: ${data.btts}%<br>
+        Cartões: ${data.cards}%<br>
+        Cantos: ${data.corners}%
+    `;
+}
+</script>
+
+</body>
+</html>
 
