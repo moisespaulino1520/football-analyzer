@@ -1,50 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Football Match Analyzer</title>
+
+<style>
+body{
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+    padding:40px;
+}
+
+input{
+    padding:12px;
+    width:260px;
+    border-radius:8px;
+    border:none;
+}
+
+button{
+    padding:12px 20px;
+    background:#22c55e;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+#output{
+    margin-top:30px;
+    background:#1e293b;
+    padding:20px;
+    border-radius:12px;
+}
+
+.bar{
+    background:#111827;
+    border-radius:8px;
+    margin:10px 0;
+}
+
+.fill{
+    background:#22c55e;
+    padding:6px;
+    border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>⚽ Football Analyzer</h1>
+
+<input id="team" placeholder="Ex: Barcelona">
+<button onclick="analisar()">Analisar</button>
+
+<div id="output">Aguardando análise...</div>
+
 <script>
-let chart; // Variável global para o gráfico
-
 async function analisar(){
-    let team = document.getElementById("team").value;
 
-    // Mensagem de loading
-    document.getElementById("last5Games").innerHTML = "A analisar últimos 5 jogos...";
-    document.getElementById("nextGame").innerHTML = "A analisar próximo jogo...";
+let team = document.getElementById("team").value;
 
-    // 🔥 URL corrigida (agora com /api/analyze)
-    let res = await fetch("https://football-analyzer-git-main-moises-paulinos-projects.vercel.app/api/analyze?team=" + team);
-    let data = await res.json();
+document.getElementById("output").innerHTML="A analisar...";
 
-    console.log(data); // para vermos resposta no futuro
+let res = await fetch("https://football-analyzer-git-main-moises-paulinos-projects.vercel.app/api/analyze?team="+team);
+let data = await res.json();
 
-    // Mostrar probabilidades básicas primeiro
-    document.getElementById("nextGame").innerHTML = `
-        <h3>Previsão do Jogo</h3>
+document.getElementById("output").innerHTML=`
+<h3>${data.team}</h3>
 
-        Over 2.5 Golos
-        <div class="progress-container">
-            <div class="progress-bar" style="width:${data.over25}%; background:#22c55e;">
-                ${data.over25}%
-            </div>
-        </div>
+Over 2.5: ${data.over25}%
+<div class="bar"><div class="fill" style="width:${data.over25}%"></div></div>
 
-        Ambas Marcam (BTTS)
-        <div class="progress-container">
-            <div class="progress-bar" style="width:${data.btts}%; background:#3b82f6;">
-                ${data.btts}%
-            </div>
-        </div>
+BTTS: ${data.btts}%
+<div class="bar"><div class="fill" style="width:${data.btts}%"></div></div>
 
-        Cartões
-        <div class="progress-container">
-            <div class="progress-bar" style="width:${data.cards}%; background:#f59e0b;">
-                ${data.cards}%
-            </div>
-        </div>
+Cartões: ${data.cards}%
+<div class="bar"><div class="fill" style="width:${data.cards}%"></div></div>
 
-        Cantos
-        <div class="progress-container">
-            <div class="progress-bar" style="width:${data.corners}%; background:#ef4444;">
-                ${data.corners}%
-            </div>
-        </div>
-    `;
+Cantos: ${data.corners}%
+<div class="bar"><div class="fill" style="width:${data.corners}%"></div></div>
+`;
 }
 </script>
+
+</body>
+</html>
+
